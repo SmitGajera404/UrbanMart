@@ -1,0 +1,40 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.env
+
+# Django
+
+/media
+/staticfiles
+*.log
+*.pot
+*.pyc
+*.so
+*.pyo
+.DS_Store
+*.swp
+
+# Environment variables and settings
+.env
+*.local
+*.backup
+
+# Virtual environment
+venv/
+env/
+*.egg-info/
+
+# PyCharm/VSCode project settings
+.idea/
+.vscode/
+
+Lib/*
+
+# Migrations
+*/migrations/*
+
+# Node modules if using any frontend tools
+node_modules/

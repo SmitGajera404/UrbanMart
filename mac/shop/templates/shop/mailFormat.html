@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+        }
+
+        .invoice-box {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            background: #fff;
+        }
+
+        .invoice-box h1 {
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+        }
+
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .company-info p, .order-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .order-info {
+            text-align: right;
+        }
+
+        table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            table-layout: fixed;
+        }
+
+        table th, table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background: #333;
+            color: #fff;
+        }
+
+        table td {
+            background: #fff;
+            word-wrap: break-word; /* Ensure long text wraps within the cell */
+        }
+
+        .total-section {
+            text-align: right;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .total-section p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <h1>UrbanMart</h1>
+        <div class="info-section">
+            <div class="company-info">
+                <p><strong>Seller Name:</strong> [Seller Name]</p>
+                <p><strong>Address:</strong> [Address]</p>
+                <p><strong>City, State, Zipcode:</strong> [City], [State], [Zipcode]</p>
+            </div>
+            <div class="order-info">
+                <p><strong>Order ID:</strong> [Order ID]</p>
+                <p><strong>Order Timestamp:</strong> [Order Timestamp]</p>
+                <p><strong>Payment Type:</strong> [Payment Type]</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Tax (%)</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Repeat this <tr> block for each product -->
+               
+               
+                <tr>
+                    <td>[Product Name]</td>
+                    <td>[Quantity]</td>
+                    <td>[Tax]</td>
+                    <td>[Price]</td>
+                    <td>[Total]</td>
+                </tr>
+                <tr style="height:400px">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <!-- End repeat -->
+            </tbody>
+        </table>
+        <div class="total-section">
+            <p><strong>Net Total:</strong> [Net Total]</p>
+        </div>
+    </div>
+</body>
+</html>

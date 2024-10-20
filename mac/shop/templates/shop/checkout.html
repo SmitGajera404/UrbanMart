@@ -1,0 +1,484 @@
+{% extends "shop/basic.html" %} {% block title %}Checkout Page{% endblock %} {%
+load static %} {% block css %}
+<style>
+    .select2{
+        width:100% !important;
+    }
+  /* Custom styles for Select2 dropdowns */
+  .select2-container--default .select2-results__option {
+    background-color: #333; /* Dark background for options */
+    color: white; /* White text color */
+  }
+
+  .select2-container--default .select2-results__option--highlighted {
+    background-color: #555; /* Slightly lighter background for highlighted option */
+    color: #fff; /* White text color for highlighted option */
+  }
+
+  .select2-container--default .select2-selection--single {
+    background-color: #333; /* Dark background for the selected item */
+    color: #fff; /* White text color for the selected item */
+  }
+
+  .select2-container--default
+    .select2-selection--single
+    .select2-selection__rendered {
+    color: #fff; /* White text color for the rendered selected item */
+  }
+
+  .select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow {
+    background-color: #333; /* Dark background for the dropdown arrow */
+  }
+</style>
+
+<style>
+  .checkout-container {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #0c0c0c;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .checkout-header,
+  .checkout-footer {
+    background-color: #343a40;
+    color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+  }
+
+  .checkout-body {
+    background-color: #343a40;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 15px;
+  }
+
+  .checkout-item {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .checkout-item:last-child {
+    border-bottom: none;
+  }
+
+  .checkout-item h5 {
+    color: #f8f9fa;
+    margin-bottom: 10px;
+  }
+
+  .product-image {
+    margin-right: 30px;
+    border-radius: 10px;
+    height: 200px;
+    object-fit: cover;
+    max-width: 200px;
+  }
+
+  .checkout-item-details {
+    flex: 1;
+    margin-right: 15px;
+  }
+
+  .checkout-footer .btn-primary {
+    padding: 10px 20px;
+    margin: 5px;
+  }
+
+  @media (max-width: 768px) {
+    .checkout-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .checkout-item-details {
+      margin-bottom: 10px;
+    }
+  }
+
+  .description {
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .full-description {
+    display: none;
+  }
+
+  .show-more {
+    color: #007bff;
+    cursor: pointer;
+  }
+
+  .show-more:hover {
+    text-decoration: underline;
+  }
+
+  .address-line {
+    background-color: #1c1c1c;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  .address-line h5 {
+    color: #f8f9fa;
+  }
+
+  .address-line p {
+    color: #ced4da;
+  }
+
+  .address-line.selected {
+    border: 2px solid #007bff;
+  }
+  .display-none{
+    display:none !important;
+  }
+  .address-actions {
+    text-align: right;
+  }
+
+  .btn-add-address {
+    padding: 10px 20px;
+    margin: 5px;
+  }
+
+  .new-address-form {
+    display: none;
+  }
+</style>
+{% endblock %} {% block body %}
+<br />
+<br />
+<div class="container checkout-container">
+  <br />
+
+  <div class="card">
+    <div class="card-header checkout-header">
+      <h3>Checkout</h3>
+    </div>
+    <div class="card-body checkout-body" id="checkout"></div>
+    <div class="card-footer checkout-footer text-right">
+      <h4 id="total">Total: Rs.</h4>
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-header checkout-header">
+      <h3>Shipping Information</h3>
+    </div>
+    <div class="card-body checkout-body">
+    {%for i in address_lines%}
+      <!-- Static address lines -->
+      <div class="address-line" onclick="selectAddress(this,{{i.id}})">
+        <h5>{{i.name}}</h5>
+        <p>Email: {{i.email}}</p>
+        <p>Phone: {{i.phone}}</p>
+        <p>Address: {{i.address}}</p>
+      </div>
+      {%endfor%}
+
+      <div class="address-actions d-flex justify-content-end">
+        <form method="POST" id="line-form" class='display-none' action="/shop/checkout/">
+            {%csrf_token%}
+            <input type="hidden" id="address_id" name="address_id" value="0"/>
+            <input type="hidden" name="cart" id="cart1"/>
+            <button type='submit' class="btn btn-primary payWithRazorPay btn-add-address">Place order</button>
+        </form>
+        <button
+          class="btn btn-primary btn-add-address"
+          onclick="toggleNewAddressForm();removeAddress()"
+          id='add_address'
+        >
+          Add New Address
+        </button>
+      </div>
+
+      <form
+        method="POST"
+        action="/shop/checkout/"
+        id="new-address-form"
+        class="new-address-form"
+        style="display:none !important;"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="cart" id="cart"/>
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            name="name"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input
+            type="tel"
+            class="form-control"
+            id="phone"
+            name="phone"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="address">Address</label>
+          <textarea
+            class="form-control"
+            id="address"
+            name="address"
+            rows="3"
+            required
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="city">City</label>
+          <select class="form-control select2" id="city" name="city" required>
+            {% for i in api %}
+            <option class="text-dark bg-dark" value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="state">State</label>
+          <select class="form-control select2" id="state" name="state" required>
+            {% for i in api_state %}
+            <option class="text-dark bg-dark" value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="zip_code">Zip Code</label>
+          <input
+            type="text"
+            class="form-control"
+            id="zip_code"
+            name="zip_code"
+            required
+          />
+        </div>
+        <button type="submit" class="btn payWithRazorPay btn-primary">Place Order</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<link
+  href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css"
+  rel="stylesheet"
+/>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+
+
+
+
+
+$('.payWithRazorPay').click((e) => {
+    e.preventDefault();
+
+    // Fetch total price dynamically from the cart
+    let total = 0;
+    let cart = JSON.parse(localStorage.getItem('cart'));
+    for (const val of Object.keys(cart)) {
+        let price = cart[val][3];
+        let quantity = cart[val][0];
+        total += price * quantity;
+    }
+    
+    let formData = new FormData(); 
+    formData.append("address_id", document.getElementById('address_id').value);
+    formData.append("cart", JSON.stringify(cart));
+
+    // Check if user is submitting a new address form
+    if (!document.getElementById('new-address-form').classList.contains('display-none')) {
+        formData.append("name", document.getElementById('name').value);
+        formData.append("email", document.getElementById('email').value);
+        formData.append("phone", document.getElementById('phone').value);
+        formData.append("address", document.getElementById('address').value);
+        formData.append("city", document.getElementById('city').value);
+        formData.append("state", document.getElementById('state').value);
+        formData.append("zip_code", document.getElementById('zip_code').value);
+    }
+
+    // Initiate Razorpay payment
+    var options = {
+        "key": "rzp_test_NgUexJIDT0JaTU", // Razorpay key
+        "amount": total*100,  // Convert total price to paise
+        "currency": "INR",
+        "name": "Urban Mart",  // Your business name
+        "description": "Order payment", 
+        "image": "https://example.com/your_logo",  // Your logo URL
+        "handler": function (response) {
+            formData.append("payment_id", response.razorpay_payment_id);
+            Swal.showLoading();  // Show loader at the start
+
+            $.ajax({
+                url: "/shop/checkout/",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    Swal.close();  // Hide the loader once the response is received
+            
+                    // Show SweetAlert success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed!',
+                        text: 'Your order has been placed successfully!',
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        localStorage.clear();  // Clear the local storage after success
+                        window.location.href = "/shop/";  // Redirect to the shop page
+                    });
+                },
+                error: function (error) {
+                    Swal.close();  // Hide the loader if there's an error
+            
+                    // Show SweetAlert error message
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Order Failed',
+                        text: 'There was an issue with your order. Please try again.',
+                        confirmButtonText: 'Retry'
+                    });
+                }
+            });
+            
+        },
+        "theme": {
+            "color": "#F37254"
+        }
+    };
+    
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+
+    rzp1.on('payment.failed', function (response) {
+        alert('Payment Failed');
+    });
+});
+
+
+
+  $('.select2').select2({
+      placeholder: 'Select an option',
+      allowClear: true
+  });
+
+  var cart;
+  if (localStorage.getItem('cart') == null) {
+      cart = {};
+  } else {
+      cart = JSON.parse(localStorage.getItem('cart'));
+  }
+  var total = 0;
+  document.getElementById('cart').value = JSON.stringify(cart)
+  document.getElementById('cart1').value = JSON.stringify(cart)
+  for (const val of Object.keys(cart)) {
+      let id, quantity, name, desc, price, category, image;
+      id = val.substring(2)
+      quantity = cart[val][0]
+      name = cart[val][1]
+      desc = cart[val][2]
+      price = cart[val][3]
+      category = cart[val][4]
+      image = cart[val][5]
+
+      document.getElementById('checkout').innerHTML += `<div class="checkout-item" id="checkout-item-${id}">
+              <div>
+                  <img src="/media/${image}" alt="${name}" class="product-image">
+              </div>
+              <div class="checkout-item-details">
+                  <h5>${name}</h5>
+                                      <p class="description">${desc}</p>
+                  <span class="show-more" onclick="toggleDescription(this)">... more</span>
+                  <p class="full-description">${desc}</p>
+                  <p><strong>Category:</strong>${category}</p>
+                  <p><strong>Price:</strong> <span class="text-success">Rs.${price}</span></p>
+                  <p><strong>Quantity:</strong>${quantity}</p>
+              </div>
+          </div>`
+      total += price * quantity;
+  }
+  document.getElementById('total').innerHTML = `<h5 class="text-success">Total: Rs. ${total}</h5>`
+
+  function toggleDescription(element) {
+      const description = element.previousElementSibling;
+      const fullDescription = element.nextElementSibling;
+
+      if (description.style.display === 'none') {
+          description.style.display = '-webkit-box';
+          fullDescription.style.display = 'none';
+          element.textContent = '... more';
+      } else {
+          description.style.display = 'none';
+          fullDescription.style.display = 'block';
+          element.textContent = '... less';
+      }
+  }
+
+  function toggleNewAddressForm() {
+      const addressLines = document.querySelectorAll('.address-line');
+      document.getElementById('add_address').style.display='none';
+      addressLines.forEach(function(line) {
+        line.style.display='none';
+    });
+      const form = document.getElementById('new-address-form');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+  function removeAddress(){
+    const addressLines = document.querySelectorAll('.address-line');
+    addressLines.forEach(function(line) {
+          line.classList.remove('selected');
+      });
+  }
+  function selectAddress(element,id) {
+      // Remove the 'selected' class from all address lines
+      addr=document.getElementById('address_id').value=id
+      line_form=document.getElementById('line-form');
+      line_form.style.display='static !important';
+      line_form.classList.remove('display-none');
+      const addressLines = document.querySelectorAll('.address-line');
+      addressLines.forEach(function(line) {
+          line.classList.remove('selected');
+      });
+
+      // Add the 'selected' class to the clicked address line
+      element.classList.add('selected');
+  }
+
+  {% if success %}
+  alert('Thank you for ordering. Your order id is {{order_id}}. Use it to track your order')
+  localStorage.clear()
+  document.location = "/shop/"
+  {% endif %}
+</script>
+{% endblock %}

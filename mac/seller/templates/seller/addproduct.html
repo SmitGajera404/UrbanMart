@@ -1,0 +1,190 @@
+{% extends 'seller/basic.html' %}
+{% block title %}Add Product - UrbanMart{% endblock %}
+{% load static %}
+{% block css %}
+<style>
+    .body {
+        background-color: #121212;
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    .form-container {
+        background-color: #1f1f1f;
+        padding: 20px 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 70%;
+    }
+    .form-container h2 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #ffffff;
+        color: #000000;
+    }
+    .form-group textarea {
+        resize: vertical;
+    }
+    .form-group button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #6200ea;
+        color: #ffffff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .form-group button:hover {
+        background-color: #3700b3;
+    }
+    .form-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .form-group-half {
+        width: 48%;
+    }
+    .popover-content {
+        display: none;
+        background-color: #292929;
+        color: #ffffff;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: absolute;
+        z-index: 1;
+        width: 300px;
+        top: 100%;
+        left: 0;
+    }
+    .form-group-plan {
+        position: relative;
+    }
+    .form-group-plan:hover .popover-content {
+        display: block;
+    }
+    .plan-dropdown {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #ffffff;
+        color: #000000;
+        cursor: pointer;
+        position: relative;
+    }
+    .plan-details {
+        font-size: 14px;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="d-flex justify-content-center">
+<div class="form-container">
+    <h2>Add Product</h2>
+    <form action="/seller/addproduct/" method="post" enctype="multipart/form-data" id="product-form">{% csrf_token %}
+        <div class="form-row">
+            <div class="form-group form-group-half">
+                <label for="product-name">Product Name</label>
+                <input type="text" id="product-name" name="product-name" required>
+            </div>
+            <div class="form-group form-group-half">
+                <label for="price">Price</label>
+                <input type="number" id="price" name="price" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group form-group-half">
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Home">Home-Appliances</option>
+                    <option value="Beauty">Beauty</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Stationery">Stationery</option>
+                </select>
+            </div>
+            <div class="form-group form-group-half">
+                <label for="subcategory">Subcategory</label>
+                <input type="text" id="subcategory" name="subcategory" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group form-group-half">
+                <label for="total-stock">Total Stock</label>
+                <input type="number" id="total-stock" min="1" name="total-stock" required>
+            </div>
+            <div class="form-group form-group-half">
+                <label for="search-keywords">Search Keywords</label>
+                <input type="text" placeholder="keyword1,keyword2,keyword3..." id="search-keywords" name="search-keywords" required>
+            </div>
+        </div>
+
+        <!-- Product Plan Selection -->
+        <div class="form-group form-group-plan">
+            <label for="product-plan">Product Plan</label>
+            <select id="product-plan" name="product-plan" class="plan-dropdown" required>
+                <option value="">Select a Plan</option>
+                <option value="platinum">Platinum</option>
+                <option value="golden">Golden</option>
+                <option value="silver">Silver</option>
+            </select>
+            <div class="popover-content">
+                <h4>Plan Details</h4>
+                <div id="plan-details" class="plan-details">
+                    <!-- Details will be dynamically updated -->
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="product-image">Product Image</label>
+            <input type="file" id="product-image" name="product-image" accept="image/*" required>
+        </div>
+        <div class="form-group">
+            <button type="submit">Add Product</button>
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+    const plans = {
+        'platinum': '<p class="text-danger">20% referral fees.</p><p class="text-success"> Maximum product reach</p> Includes regular analytics reports',
+        'golden': '<p class="text-danger">13% referral fees.</p><p class="text-success"> Medium product reach.</p> Includes regular analytics reports',
+        'silver': '<p class="text-danger">7% referral fees.</p><p class="text-success"> Small product reach. </p>Does not include analytics reports'
+    };
+
+    document.getElementById('product-plan').addEventListener('change', function() {
+        const selectedPlan = this.value;
+        const planDetails = plans[selectedPlan] || 'Select a plan to see details.';
+        document.getElementById('plan-details').innerHTML = planDetails;
+    });
+</script>
+{% endblock %}

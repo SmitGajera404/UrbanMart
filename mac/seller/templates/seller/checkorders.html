@@ -1,0 +1,157 @@
+{% extends "seller/basic.html" %}
+
+{% block title %}Orders-EcomWEB{% endblock %}
+{% load multiply %}
+{%load humanize%}
+{% block body %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .order {
+        background-color: #ffffff;
+        color: #333;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+    .desc {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2; /* Limit to 2 lines */
+        overflow: hidden;
+        line-clamp: 2;
+        text-overflow: ellipsis;
+        white-space: normal;
+    }
+    .product-details {
+        background-color: #f1f1f1;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+    }
+    .product-details img {
+        border-radius: 10px;
+        margin-bottom: 15px;
+    }
+    .pricing-tracking-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .timestamp {
+        font-size: 0.8em;
+        color: #666;
+        margin-left: 10px;
+    }
+    .custom-text{
+        font-size: 40px;
+    }
+    .text-disabled{
+        color: #b3b3b3;
+    }
+    .pricing-details {
+        background-color: #e2e6ea;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        flex: 1;
+    }
+    .tracking-system {
+        background-color: #e2e6ea;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        flex: 1;
+    }
+    .tracking-system ul {
+        padding-left: 0;
+    }
+    .tracking-system li {
+        list-style: none;
+        margin-bottom: 5px;
+    }
+</style>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Order Details</h1>
+    {% for p in products %}
+    <hr class="text-light bg-light">
+    <p class="custom-text"><strong>#Order {{forloop.counter}}</strong></p>
+    {% for product, orderDetails in p.items %}
+    <!-- Order 1 -->
+    <div class="order">
+        <div class="row">
+            <!-- Section 1: Product Details -->
+            <div class="col-md-4">
+                <div class="product-details">
+                    <h3>{{ product.p_name }}</h3>
+                    <p class="desc"><strong>Description:</strong> {{ product.desc }}</p>
+                    <p><strong>Quantity:</strong> {{ orderDetails.0 }}</p>
+                    <p><strong>Category:</strong> {{ product.category }}</p>
+                    <img src="/media/{{ product.image }}" alt="Product Image" class="img-fluid">
+                </div>
+            </div>
+            <!-- Section 2: Pricing Details and Product Tracking -->
+            <div class="col-md-8">
+                <div class="pricing-tracking-wrapper">
+                    <div class="pricing-details">
+                        <p><strong>Price:</strong><p class="text-success"> ₹{{ product.price|multiply:orderDetails.0 }}</p></p>
+                        <p><strong>Product plan:</strong><p class="text-success">{{product.p_plan}}</p></p>
+                        <p><strong>Referral Fees ({{orderDetails.2}}%):</strong><p class="text-danger"> ₹{{orderDetails.3}}</p></p>
+                        <p><strong>You get:</strong><p class="text-success"> ₹{{orderDetails.4}}</p></p>
+                    </div>
+                    <div class="tracking-system">
+                        <h5>Product Tracking</h5>
+                        <ul>
+                            <li {%if orderDetails.1.placed.0%}class="text-success"{%else%}class="text-disabled"{%endif%}>
+                                <i class="fas fa-check-circle"></i> Placed
+                                <span class="timestamp">
+                                    {%if orderDetails.1.placed.0%}
+                                    {{orderDetails.1.placed.1|naturaltime}}
+                                    {%endif%}
+                                </span>
+                            </li>
+                            <li {%if orderDetails.1.shipped.0%}class="text-success"{%else%}class="text-disabled"{%endif%}>
+                                <i class="fas fa-check-circle"></i> Shipped
+                                <span class="timestamp">
+                                    {%if orderDetails.1.shipped.0%}
+                                    {{orderDetails.1.shipped.1|naturaltime}}
+                                    {%endif%}
+                                </span>
+                            </li>
+                            <li {%if orderDetails.1.packed.0%}class="text-success"{%else%}class="text-disabled"{%endif%}>
+                                <i class="fas fa-check-circle"></i> Packed
+                                <span class="timestamp">
+                                    {%if orderDetails.1.packed.0%}
+                                    {{orderDetails.1.packed.1|naturaltime}}
+                                    {%endif%}
+                                </span>
+                            </li>
+                            <li {%if orderDetails.1.out_for_delivery.0%}class="text-success"{%else%}class="text-disabled"{%endif%}>
+                                <i class="fas fa-truck"></i> Out for Delivery
+                                <span class="timestamp">
+                                    {%if orderDetails.1.out_for_delivery.0%}
+                                    {{orderDetails.1.out_for_delivery.1|naturaltime}}
+                                    {%endif%}
+                                </span>
+                            </li>
+                            <li {%if orderDetails.1.delivered.0%}class="text-success"{%else%}class="text-disabled"{%endif%}>
+                                <i class="fas fa-box-open"></i> Delivered
+                                <span class="timestamp">
+                                    {%if orderDetails.1.delivered.0%}
+                                    {{orderDetails.1.delivered.1|naturaltime}}
+                                    {%endif%}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% endblock %}

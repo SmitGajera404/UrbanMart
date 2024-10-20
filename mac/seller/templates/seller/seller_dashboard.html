@@ -1,0 +1,112 @@
+{% extends 'seller/basic.html' %}
+{% block title %}
+UrbanMart-Dashboard
+{% endblock %}
+{% block css %}
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 20px;
+    }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 30px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 36px;
+        font-weight: 700;
+        color: #007bff;
+    }
+
+    .chart-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        padding: 20px;
+        transition: transform 0.2s;
+    }
+
+    .chart-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .chart-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .chart {
+        text-align: center;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Sales Data Dashboard</h1>
+    </div>
+
+    <div class="chart-card">
+        <h2 class="chart-title">Sales Data Visualization</h2>
+        <div class="chart">
+            <img src="{% url 'plot_sales_data' %}" alt="Sales Over Time">
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2 class="chart-title">Sales to Order Ratio</h2>
+        <div class="chart">
+            <img src="{% url 'plot_sales_order' %}" alt="Sales to Order Ratio">
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2 class="chart-title">Top 5 Best Sellers</h2>
+        <div class="chart">
+            <img src="{% url 'top_5_best_sellers' %}" alt="Top 5 Best Sellers">
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2 class="chart-title">Categorical Contribution to Revenue</h2>
+        <div class="chart">
+            <img src="{% url 'revenue_contrib_category' %}" alt="Categorical Contribution to Revenue">
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2 class="chart-title">Sales Funnel</h2>
+        <div class="chart">
+            <img src="{% url 'view_to_order_funnel' %}" alt="Sales Funnel">
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2 class="chart-title">Order Volume by Time of Day</h2>
+        <div class="chart">
+            <img src="{% url 'order_volume_by_day' %}" alt="Order Volume by Time of Day">
+        </div>
+    </div>
+</div>
+{% endblock %}

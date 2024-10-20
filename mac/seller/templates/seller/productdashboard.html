@@ -1,0 +1,119 @@
+{% extends 'seller/basic.html' %}
+{% block title %}
+UrbanMart - Dashboard
+{% endblock %}
+{% block css %}
+<style>
+    body {
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .header {
+        text-align: center;
+        padding: 20px 0;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+        margin: 0;
+        color: #343a40;
+    }
+
+    .metrics {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .metrics div {
+        flex: 1;
+        background-color: #f1f3f5;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        font-size: 1.2rem;
+        color: #495057;
+    }
+
+    .metrics div span {
+        display: block;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .chart {
+        margin: 20px 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart img {
+        max-width: 100%;
+        border-radius: 10px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin: 20px 0;
+        color: #343a40;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="header">
+        <h1>Dashboard for {{ product.p_name }}</h1>
+    </div>
+
+    <div class="metrics">
+        <div>
+            <span>Page Views</span>
+            {{ product.views }}
+        </div>
+        <div>
+            <span>Lifetime Sales</span>
+            {{ product.lifetime_sales }}
+        </div>
+    </div>
+
+    <h2>Sales Trend Line (Current Week)</h2>
+    <div class="chart">
+        <img src="/seller/plot_sales_trend/{{ product.id }}" alt="Sales Over Time">
+    </div>
+
+    <h2>Order Volume by Time of Day (All Time)</h2>
+    <div class="chart">
+        <img src="/seller/order_volume/{{ product.id }}" alt="Order Volume by time of day">
+    </div>
+
+    <h2>Sales Distribution (India)</h2>
+    <div class="chart">
+        {{map|safe}}
+    </div>
+
+    <h2>Word cloud of product reviews</h2>
+    <div class="chart">
+        <img src="/seller/word_freq/{{ product.id }}" alt="Word Cloud Of Product Reviews">
+    </div>
+</div>
+{% endblock %}

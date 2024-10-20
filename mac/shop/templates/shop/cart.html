@@ -1,0 +1,65 @@
+{% extends "shop/basic.html" %}
+
+{% block title %}Cart Page{% endblock %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'style/cart.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="container cart-container">
+    <div class="card">
+        <div class="card-header cart-header">
+            <h3>Shopping Cart</h3>
+        </div>
+        <div class="card-body cart-body" id="cart">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="filterBy">Filter By:</label>
+                        <select class="form-control" id="filterBy" onchange="applyFilter(this.value)">
+                            <option value="">Select...</option>
+                            <option value="low-high">Price: Low to High</option>
+                            <option value="high-low">Price: High to Low</option>
+                            <option value="quantity">Quantity</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% for i,j in products %}
+            
+            <div class="cart-item" id="cart-item-{{i.0.id}}">
+                <div>
+                    <img src="/media/{{i.0.image}}" alt="{{ i.0.p_name }}" class="product-image">
+                </div>
+                <div class="cart-item-details">
+                    <h5>{{ i.0.p_name }}</h5>
+                    <p class="description">{{ i.0.desc }}</p>
+                    <span class="show-more" onclick="toggleDescription(this)">... more</span>
+                    <p class="full-description">{{ i.0.desc }}</p>
+                    <p><strong>Category:</strong> {{ i.0.category }}</p>
+                    <p><strong>Subcategory:</strong> {{ i.0.subcategory }}</p>
+                    <p><strong>Price:</strong> <p class="text-success">Rs.{{ i.0.price }}</p></p>
+                </div>
+                <div class="quantity-controls">
+                    <button id="ui{{ i.0.id }}" onclick="updateQuantity('{{i.0.id}}','{{i.0.stock}}', '{{i.0.p_name|escapejs}}', '{{i.0.desc|escapejs}}', '{{i.0.price}}', '{{i.0.category|escapejs}}', '{{i.0.image|escapejs}}', -1)">-</button>
+                    <input type="number" id="quantity{{ i.0.id }}" name="quantity" min="0" max="{{i.0.stock}}" value="{{ j }}" onchange="updateQuantityDirect('{{ i.0.id }}','{{i.0.stock}}', '{{i.0.p_name|escapejs}}', '{{i.0.desc|escapejs}}', '{{i.0.price}}', '{{i.0.category|escapejs}}', '{{i.0.image|escapejs}}')">
+                    <button id="ud{{ i.0.id }}" onclick="updateQuantity('{{i.0.id}}','{{i.0.stock}}', '{{i.0.p_name|escapejs}}', '{{i.0.desc|escapejs}}', '{{i.0.price}}', '{{i.0.category|escapejs}}', '{{i.0.image|escapejs}}', 1)">+</button>
+                </div>
+                <div><button class="remove-button btn btn-danger" onclick="deleteProduct('{{ i.0.id }}')">Remove</button></div>
+            </div>
+            
+            {% endfor %}
+        </div>
+        <div class="card-footer cart-footer text-right">
+            <button class="btn btn-danger" id="clearCart" onclick="clearCart('{{products|length}}')">Clear Cart</button>
+            <a class="btn btn-primary" id="Checkout" href="/shop/checkout">Proceed to Checkout</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'scripts/cart.js' %}">
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "seller/basic.html" %}
+
+{% block title %}Edit Product{% endblock %}
+
+{% block css %}
+<style>
+    .product-edit-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #343a40;
+        border-radius: 10px;
+    }
+    .product-edit-form .form-group label {
+        font-weight: bold;
+    }
+    .product-edit-form .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .product-edit-form .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+    .product-edit-form .form-control {
+        background-color: #495057;
+        border: 1px solid #6c757d;
+        color: #fff;
+    }
+    .product-edit-container h2 {
+        text-align: center;
+    }
+    .current-image {
+        display: block;
+        margin: 0 auto 15px;
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+    .form-group-plan {
+        position: relative;
+    }
+    .plan-dropdown {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #495057;
+        color: #ffffff;
+        font-weight: bold;
+    }
+   
+    .plan-details p {
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="product-edit-container text-white">
+        <h2 class="mb-4">Edit Product</h2>
+        <form class="product-edit-form" method="post" action="/seller/editProduct/{{product.id}}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="currentImage">Current Image</label>
+                <img src="/media/{{ product.image }}" alt="Current Image" class="current-image" id="currentImage">
+            </div>
+            <div class="form-group">
+                <label for="productImage">New Product Image(Optional)</label>
+                <input type="file" class="form-control-file" id="productImage" name="image">
+            </div>
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" class="form-control" id="productName" name="name" value="{{ product.p_name }}">
+            </div>
+            <div class="form-group">
+                <label for="productDescription">Description</label>
+                <textarea class="form-control" id="productDescription" name="description" rows="4">{{ product.desc }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="productKeywords">Search Keywords</label>
+                <input type="text" class="form-control" id="productKeywords" name="keywords" value="{{ product.keywords }}">
+            </div>
+            <div class="form-group">
+                <label for="productCategory">Category</label>
+                <input type="text" class="form-control" id="productCategory" name="category" value="{{ product.category }}">
+            </div>
+            <div class="form-group">
+                <label for="productSubcategory">Subcategory</label>
+                <input type="text" class="form-control" id="productSubcategory" name="subcategory" value="{{ product.subcategory }}">
+            </div>
+            <div class="form-group form-group-plan">
+                <label for="product-plan">Product Plan</label>
+                <select id="product-plan" name="product-plan" class="plan-dropdown" data-toggle="popover" title="Plan Details" required>
+                    <option value="">Select a Plan</option>
+                    {%if product.p_plan == 'platinum'%}
+                    <option value="platinum" selected>Platinum - 20% Referral Fee, Max Reach</option>
+                    <option value="golden">Golden - 13% Referral Fee, Medium Reach</option>
+                    <option value="silver">Silver - 7% Referral Fee, Small Reach</option>
+                    {%elif product.p_plan == 'golden'%}
+                    <option value="platinum">Platinum - 20% Referral Fee, Max Reach</option>
+                    <option value="golden" selected>Golden - 13% Referral Fee, Medium Reach</option>
+                    <option value="silver">Silver - 7% Referral Fee, Small Reach</option>
+                    {%else%}
+                    <option value="platinum">Platinum - 20% Referral Fee, Max Reach</option>
+                    <option value="golden">Golden - 13% Referral Fee, Medium Reach</option>
+                    <option value="silver" selected>Silver - 7% Referral Fee, Small Reach</option>
+                    {%endif%}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="productPrice">Price</label>
+                <input type="number" class="form-control" id="productPrice" name="price" step="0.01" value="{{ product.price }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{%block script%}
+
+{%endblock%}

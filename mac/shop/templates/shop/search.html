@@ -1,0 +1,309 @@
+{% extends 'shop/basic.html' %} {% block title %}Search Results - E-Shop{%endblock %}
+{% load static %} {% block css %}
+<style>
+  .product-card {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background-color: #343a40;
+    color: #f8f9fa;
+    margin-bottom: 20px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+  }
+
+  .description {
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .full-description {
+    display: none;
+  }
+
+  .show-more {
+    color: #007bff;
+    cursor: pointer;
+  }
+
+  .show-more:hover {
+    text-decoration: underline;
+  }
+
+  .quantity-controls button {
+    background-color: #007bff;
+    border: none;
+    color: #fff;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
+  .product-card img {
+    max-width: 150px;
+    margin-right: 20px;
+    border-radius: 5px;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  .quantity-controls input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin: 0 5px;
+  }
+
+  .quantity-controls button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+  }
+
+  .product-card h5 {
+    font-weight: bold;
+  }
+
+  .product-card .category {
+    color: #adb5bd;
+  }
+
+  .product-card .price {
+    color: #28a745;
+    font-size: 1.2em;
+  }
+
+  .product-details {
+    flex-grow: 1;
+  }
+
+  .button-group {
+    margin-top: 10px;
+  }
+
+  .button-group .btn {
+    margin-right: 10px;
+  }
+
+  .filter-form {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+  }
+
+  .filter-form label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .filter-form input,
+  .filter-form select {
+    margin-right: 15px;
+  }
+</style>
+{% endblock %} {% block body %}
+<br /><br /><br /><br />
+<div class="container">
+  <h1 class="mb-4">Search Results</h1>
+  <!-- Filter Form -->
+  <form method="POST" name="filterForm" id="filterForm" action="/shop/search/" class="text-dark filter-form">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-4">
+        <label for="category" class="form-label">Category:</label>
+        <select id="category" class="form-control" name="category">
+          <option value="All">All</option>
+          {% for cat in allCats %}
+          <option value="{{ cat.category }}">{{ cat.category }}</option>
+          {% endfor %}
+        </select>
+      </div>
+  
+      <div class="col-md-4">
+        <label for="subcategory" class="form-label">Subcategory:</label>
+        <select id="subcategory" class="form-control" name="subcategory">
+          <option value="All">All</option>
+          {% for subcat in allSubCats %}
+          <option value="{{ subcat.subcategory }}">{{ subcat.subcategory }}</option>
+          {% endfor %}
+        </select>
+      </div>
+  
+      <div class="col-md-4">
+        <label for="sort" class="form-label">Sort by:</label>
+        <select id="sort" class="form-control" name="sort-by">
+          <option value="">Select...</option>
+          <optgroup label="Price">
+            <option value="price_high_low">Price: High to Low</option>
+            <option value="price_low_high">Price: Low to High</option>
+          </optgroup>
+          <optgroup label="Ratings">
+            <option value="ratings_high_low">Ratings: High to Low</option>
+            <option value="ratings_low_high">Ratings: Low to High</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+  
+    <div class="row mt-3">
+      <div class="col-md-4">
+        <label for="min_price" class="form-label">Min Price:</label>
+        <input type="number" class="form-control" id="min_price" name="min_price" value="" min="0" step="0.01" />
+      </div>
+  
+      <div class="col-md-4">
+        <label for="max_price" class="form-label">Max Price:</label>
+        <input type="number" class="form-control" id="max_price" name="max_price" value="" min="0" step="0.01" />
+      </div>
+  
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+      </div>
+    </div>
+  
+    <input type="hidden" id="query" name="query" value="{{ query }}" />
+  </form>
+  
+
+  <div class="row" id="productDetails">
+    <!-- Static Product 1 -->
+    {% if products|length < 1 %}
+    <p class="text-danger">No search results returned!!</p>
+    {%endif%} {% for i in products %}
+    <div class="col-12">
+      <div class="product-card">
+        <img src="/media/{{i.image}}" alt="Product 1 Image" />
+        <div class="product-details">
+          <h5>{{i.p_name}}</h5>
+          <p class="category">Category: {{i.category}}</p>
+          <p class="price">&#8377;{{i.price}}</p>
+          <p>Subcategory: {{i.subcategory}}</p>
+          {{i.p_plan}}
+          <p class="description">{{ i.desc }}</p>
+          <span class="show-more" onclick="toggleDescription(this)"
+            >... more</span
+          >
+          <p class="full-description">{{ i.desc }}</p>
+
+          <div class="button-group">
+            <a
+              id="quantity-controls-{{ i.id }}"
+              class="quantity-controls"
+              style="display: none"
+            >
+              <button
+                id="ui{{i.id}}"
+                onclick="updateQuantity('{{i.id}}','{{i.p_name|escapejs}}','{{i.desc|escapejs}}','{{i.price}}','{{i.category|escapejs}}','{{i.image|escapejs}}',-1)"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="quantity{{ i.id }}"
+                name="quantity"
+                min="0"
+                value="1"
+                onchange="updateQuantityDirect('{{i.id}}','{{i.p_name|escapejs}}','{{i.desc|escapejs}}','{{i.price}}','{{i.category|escapejs}}','{{i.image|escapejs}}')"
+              />
+              <button
+                id="ud{{i.id}}"
+                onclick="updateQuantity('{{i.id}}','{{i.p_name|escapejs}}','{{i.desc|escapejs}}','{{i.price}}','{{i.category|escapejs}}','{{i.image|escapejs}}',1)"
+              >
+                +
+              </button>
+            </a>
+            <button
+              id="pr{{ i.id }}"
+              class="btn btn-primary cart"
+              onclick="showQuantityControls('{{i.id}}','{{i.p_name|escapejs}}','{{i.desc|escapejs}}','{{i.price}}','{{i.category|escapejs}}','{{i.image|escapejs}}')"
+            >
+              Add to cart
+            </button>
+            <a
+              href="/shop/productview/{{ i.id }}"
+              id="qv{{ i.id }}"
+              class="btn btn-primary"
+              >View</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script src="{% static 'scripts/script.js' %}"></script>
+<script>
+  $('#filterForm').submit(function (event) {
+      event.preventDefault();
+      var formData = {
+          'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+          'category': $('#category').val(),
+          'subcategory': $('#subcategory').val(),
+          'min_price': $('#min_price').val(),
+          'max_price': $('#max_price').val(),
+          'sort-by':$('#sort').val(),
+          'query':'{{query}}'
+      };
+
+      $.ajax({
+        url: '/shop/search/',
+        data: formData,
+        type: 'POST',
+        dataType: 'json',
+        encode: true,
+        success: function (data) {
+            let productDetailsHtml = '';
+            if (data.length > 0) {
+                data.forEach(function(product) {
+                    productDetailsHtml += `
+                    <div class="col-12">
+                        <div class="product-card">
+                            <img src="/media/${product.image}" alt="Product Image">
+                            <div class="product-details">
+                                <h5>${product.p_name}</h5>
+                                <p class="category">Category: ${product.category}</p>
+                                <p class="price">&#8377;${product.price}</p>
+                                <p>Subcategory: ${product.subcategory}</p>
+                                <p class="description">${product.desc}</p>
+                                <span class="show-more" onclick="toggleDescription(this)">... more</span>
+                                <p class="full-description">${product.desc}</p>
+                                <div class="button-group">
+                                    <a id="quantity-controls-${product.id}" class="quantity-controls" style="display:none;">
+                                        <button id="ui${product.id}" onclick="updateQuantity('${product.id}', '${product.p_name}', '${product.desc}', '${product.price}', '${product.category}', '${product.image}', -1)">-</button>
+                                        <input type="number" id="quantity${product.id}" name="quantity" min="0" value="1" onchange="updateQuantityDirect('${product.id}', '${product.p_name}', '${product.desc}', '${product.price}', '${product.category}', '${product.image}')">
+                                        <button id="ud${product.id}" onclick="updateQuantity('${product.id}', '${product.p_name}', '${product.desc}', '${product.price}', '${product.category}', '${product.image}', 1)">+</button>
+                                    </a>
+                                    <button id="pr${product.id}" class="btn btn-primary cart" onclick="showQuantityControls('${product.id}', '${product.p_name}', '${product.desc}', '${product.price}', '${product.category}', '${product.image}')">Add to cart</button>
+                                    <a href="/shop/productview/${product.id}" id="qv${product.id}" class="btn btn-primary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                productDetailsHtml = '<p class="text-danger">No search results returned!!</p>';
+            }
+            $('#productDetails').html(productDetailsHtml);
+        },
+        error: function (data) {
+            console.log('Error from search ' + data);
+        }
+    });
+    
+  });
+</script>
+{% endblock %}

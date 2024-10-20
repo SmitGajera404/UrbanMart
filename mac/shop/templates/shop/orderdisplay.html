@@ -1,0 +1,257 @@
+{% extends 'shop/basic.html' %}
+
+{% block title %}
+Order Details
+{% endblock %}
+{%load humanize%}
+{%load getdict%}
+{%block css%}
+
+<style>
+    
+    .img-fluid-1 {
+        height:200px !important;
+        width:250px;
+        height: auto;
+        object-fit: cover;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+    }
+
+    .tracking-card {
+        border-radius: 12px;
+    }
+
+    /* Tracking Timeline */
+    .tracking-timeline {
+        position: relative;
+        padding-left: 40px;
+        margin-top: 20px;
+    }
+
+    .tracking-timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 28px;
+        width: 4px;
+        background-color: #007bff;
+    }
+
+    .tracking-step {
+        position: relative;
+        margin-bottom: 40px;
+    }
+
+    .step-icon {
+        position: absolute;
+        left: -10px;
+        top: 0;
+        width: 40px;
+        height: 40px;
+        background-color: #007bff;
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .text-success{
+        color: green !important1;
+    }
+    .step-icon-active {
+        background-color: #28a745;
+     }
+    .step-icon-disabled{
+        background-color: rgba(185,185,185,0.6);
+    }
+    .step-disabled{
+        color:rgba(185,185,185,0.6);
+    }
+    .step-content {
+        margin-left: 60px;
+    }
+
+    .step-title {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .step-text {
+        margin: 5px 0;
+        color: #555;
+    }
+
+    .text-muted {
+        font-size: 12px;
+    }
+</style>
+{%endblock%}
+
+{% block body %}
+<div class="container mt-5 pt-5">
+    <h2 class="text-center">Your Orders</h2>
+    <hr>
+    {%if orders%}
+
+    {%for order in orders%}
+    <!-- Order 1 -->
+    <div class="card mb-4 bg-secondary text-white">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><strong>Order #{{order.0.id}}</strong> | Placed {{order.2.timestamp|naturaltime}} </span>
+            <a href="/shop/cancel/{{order.0.id}}" class="btn btn-danger btn-sm">Cancel Order</a>
+        </div>
+        <div class="card-body">
+            <!-- Products -->
+            {%for i in products|get_val:order.0.id%}
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <img src="/media/{{i.1.image}}" class="img-fluid-1" alt="Product Image">
+                </div>
+                <div class="col-md-9">
+                    <h5>Product Name: {{i.1.p_name}}</h5>
+                    <p>Category: {{i.1.category}}</p>
+                    <p>Quantity: {{i.0}}</p>
+                    <p>Price: ${{i.1.price}}</p>
+                </div>
+            </div>
+            <hr>
+            {%endfor%}
+            <h2 class="text-center">Tracking Information</h2>
+            <hr>
+        
+            <div class="tracking-card bg-light p-4 shadow-sm">
+                <!-- Tracking Timeline -->
+                <div class="tracking-timeline">
+                    <!-- Step 1 -->
+                    
+                    <div class="tracking-step">
+                        <div class="step-icon step-icon-active">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title text-success">Order Placed</h6>
+                            <p class="step-text">{{order.1.0.update_desc}}</p>
+                            <small class="text-muted">{{order.1.0.timestamp|naturaltime}}</small>
+                        </div>
+                    </div>
+                    {%if 'packed' in order.1.1.update_desc%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step">
+                        <div class="step-icon step-icon-active">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title text-success">packed</h6>
+                            <p class="step-text">{{order.1.1.update_desc}}</p>
+                            <small class="text-muted">{{order.1.1.timestamp|naturaltime}}</small>
+                        </div>
+                    </div>
+                     {%else%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step step-disabled">
+                        <div class="step-icon step-icon-disabled">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title">Packed</h6>
+                            <p class="step-disabled">Order will be packed soon.</p>
+                        </div>
+                    </div>
+                    {%endif%}
+        
+                    
+                    {%if 'at delivery station' in order.1.2.update_desc%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step">
+                        <div class="step-icon step-icon-active">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title text-success">Reached At Delivery Station</h6>
+                            <p class="step-text">{{order.1.2.update_desc}}</p>
+                            <small class="text-muted">{{order.1.2.timestamp|naturaltime}}</small>
+                        </div>
+                    </div>
+                     {%else%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step step-disabled">
+                        <div class="step-icon step-icon-disabled">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title">Reached At Delivery Station</h6>
+                            <p class="step-disabled">Order will reach delivery station soon.</p>
+                        </div>
+                    </div>
+                    {%endif%}
+        
+                    
+                    {%if 'out for delivery' in order.1.3.update_desc%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step">
+                        <div class="step-icon step-icon-active">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title text-success">Out for delivery</h6>
+                            <p class="step-text">{{order.1.3.update_desc}}</p>
+                            <small class="text-muted">{{order.1.3.timestamp|naturaltime}}</small>
+                        </div>
+                    </div>
+                     {%else%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step step-disabled">
+                        <div class="step-icon step-icon-disabled">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title">Out for delivery</h6>
+                            <p class="step-disabled">Order will be out for delivery soon.</p>
+                        </div>
+                    </div>
+                    {%endif%}
+
+                    {%if 'delivered' in order.1.4.update_desc%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step">
+                        <div class="step-icon step-icon-active">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title text-success">Delivered</h6>
+                            <p class="step-text">{{order.1.4.update_desc}}</p>
+                            <small class="text-muted">{{order.1.4.timestamp|naturaltime}}</small>
+                        </div>
+                    </div>
+                     {%else%}
+                    <!-- Step 2 -->
+                    <div class="tracking-step step-disabled">
+                        <div class="step-icon step-icon-disabled">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6 class="step-title">Delivered</h6>
+                            <p class="step-disabled">Order will be delivered soon.</p>
+                        </div>
+                    </div>
+                    {%endif%}
+                </div>
+            </div>
+        </div>
+    
+    </div>
+    {%endfor%}
+    {%else%}
+    <div class="text-center my-5">
+        <h4 class="mb-3">You have no orders yet.</h4>
+        <p class="text-muted">Start shopping to place your first order.</p>
+        <a href="/shop" class="btn btn-primary">Shop Now</a>
+    </div>
+    {%endif%}
+
+    
+</div>
+{% endblock %}

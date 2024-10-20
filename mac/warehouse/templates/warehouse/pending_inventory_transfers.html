@@ -1,0 +1,187 @@
+{% extends 'warehouse/basic.html' %}
+{% load static %}
+{% block title %}
+UrbanMart - Pending Inventory Transfer
+{% endblock %}
+
+{% block css %}
+<style>
+    .product-card {
+        background-color: #343a40;
+        border: 1px solid #495057;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+        transform: scale(1.02);
+    }
+
+    .product-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 10px;
+        object-fit: cover;
+        margin-right: 20px;
+        border: 2px solid #ced4da;
+    }
+
+    .product-details {
+        flex-grow: 1;
+    }
+
+    .product-details h5 {
+        margin: 0;
+        color: #f8f9fa;
+        font-size: 1.5em;
+    }
+
+    .product-details p {
+        margin: 5px 0;
+        color: #ced4da;
+    }
+
+    .product-price {
+        font-size: 1.2em;
+        color: #28a745;
+    }
+
+    .transfer-button {
+        background-color: #28a745;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .transfer-button:hover {
+        background-color: #218838;
+    }
+
+    .filter-form {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .filter-form label {
+        color: #f8f9fa;
+        margin-right: 10px;
+        font-size: 1.2em;
+    }
+
+    .filter-form input[type="text"] {
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        margin-right: 10px;
+        font-size: 1em;
+    }
+
+    .filter-form input[type="submit"] {
+        background-color: #28a745;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .filter-form input[type="submit"]:hover {
+        background-color: #218838;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="text-center text-white mb-4">Pending Inventory Transfers</h2>
+    <form class="filter-form" id="filterForm">
+        {% csrf_token %}
+        <label for="filter">Enter ID:</label>
+        <input type="text" id="filter" name="filter" placeholder="Enter ID">
+        <input type="submit" value="Filter">
+    </form>
+    <div id="product-list">
+        {% for i in products %}
+        <div class="product-card">
+            <img src="/media/{{ i.image }}" alt="Product Image" class="product-image">
+            <div class="product-details">
+                <h5>{{ i.p_name }}</h5>
+                <p><strong>Pending ID:</strong> {{ i.id }}</p>
+                <p><strong>Stock:</strong> {{ i.stock }}</p>
+                <p class="product-price">Price: ₹{{ i.price }}</p>
+            </div>
+            <form action='/warehouse/pendingInventoryTransfers/' method='post'>
+                {% csrf_token %}
+            <input type='hidden' name='transfer_id' value='{{i.id}}'>
+            <button type="submit" class="transfer-button">Transfer Done</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#filterForm').on('submit', function(event) {
+            event.preventDefault();
+            var formData = {
+                'filter': $('#filter').val(),
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            };
+
+            $.ajax({
+                url: '/warehouse/pendingInventoryTransfers/',
+                data: formData,
+                type: 'POST',
+                dataType: 'json',
+                encode: true,
+                success: function(response) {
+                    var productList = $('#product-list');
+                    productList.empty();
+
+                    var products = JSON.parse(response.products);
+                    if (products.length > 0) {
+                        products.forEach(function(product) {
+                            var fields = product.fields;
+                            productList.append(`
+                                <div class="product-card">
+                                    <img src="/media/${fields.image}" alt="Product Image" class="product-image">
+                                    <div class="product-details">
+                                        <h5>${fields.p_name}</h5>
+                                        <p><strong>Pending ID:</strong> ${formData['filter']}</p>
+                                        <p><strong>Stock:</strong> ${fields.stock}</p>
+                                        <p class="product-price">Price: ₹${fields.price}</p>
+                                    </div>
+                                    <form action='/warehouse/pendingInventoryTransfers/' method='post'>
+                {% csrf_token %}
+            <input type='hidden' name='transfer_id' value='${formData['filter']}'>
+            <button type="submit" class="transfer-button">Transfer Done</button>
+            </form>
+                                </div>
+                            `);
+                        });
+                    } else {
+                        productList.append('<p class="text-center text-white">No products found.</p>');
+                    }
+                },
+                error: function() {
+                    alert('Some error occurred');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    {% block css %}{% endblock %}
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+            color: #f8f9fa !important;
+        }
+
+        .nav-link {
+            color: #f8f9fa !important;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .form-inline {
+            margin-right: 20px;
+        }
+
+        footer {
+            background-color: #343a40;
+            padding: 20px 0;
+            margin-top: 20px;
+        }
+
+        footer h5 {
+            font-weight: bold;
+        }
+
+        footer ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .user-design{
+            border: 1px solid white;
+            border-radius: 50%;
+        }
+        footer ul li a {
+            text-decoration: none;
+            color: #ced4da;
+        }
+
+        footer ul li a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="bg-dark text-white">
+
+    <!-- Navbar -->
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/warehouse/">E-Shop</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/warehouse/">All Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/shop/">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/warehouse/pendingInventoryTransfers">Pending Inventory Transfers</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/warehouse/checkOrders" class="nav-link">
+                        Orders
+                      </a>
+                    
+                </li>
+                
+            </ul>
+            {% if not user.is_authenticated %}
+            <a class="ml-auto my-auto btn btn-success ml-2" href="#" data-toggle="modal" data-target="#signInModal">Sign In</a>
+            {% else %}
+            <form method="post" id="form-logout" class="my-auto ml-auto" action="/warehouse/logout/">
+                {% csrf_token %}
+                <input type="hidden" name="cart" id="cart-user">
+                <button class="nav-link btn btn-danger mx-1" onclick="submitLogout()">Log out</button>
+            </form>
+            
+            <div class="d-flex mx-1 flex-column align-items-center user-design justify-content-center">
+                <i class="fas fa-user px-2 pt-1"></i>
+                <p class="my-1 px-2">{{ request.user }}</p>
+            </div>
+            
+            {% endif %}
+            
+        </div>
+    </nav>
+   
+        {% for message in messages %}
+        <br>
+        <br>
+        <br>
+        <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+            <strong>{{message.tags}}</strong> {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+    <br><br><br>
+    {% block body %}{% endblock %}
+
+    <!-- Sign In Modal -->
+    <div class="modal fade" id="signInModal" tabindex="-1" aria-labelledby="signInModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signInModalLabel">Sign In</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="form-signin" action="/warehouse/signin/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="signInUsername">Username</label>
+                            <input type="text" class="form-control" id="signInUsername" name="username" placeholder="Enter username">
+                        </div>
+                        <div class="form-group">
+                            <label for="signInPassword">Password</label>
+                            <input type="password" class="form-control" id="signInPassword" name="password" placeholder="Password">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center text-lg-start mt-5">
+        <div class="container p-4">
+            <div class="row">
+                <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">E-Shop</h5>
+                    <p>Shop the best products from our store.</p>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">Links</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><a href="/" class="text-white">Home</a></li>
+                        <li><a href="/shop/" class="text-white">Shop</a></li>
+                        <li><a href="/shop/about/" class="text-white">About</a></li>
+                        <li><a href="/shop/contactus/" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">Contact</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><a href="#" class="text-white">Email: urbanmart2824@gmail.com</a></li>
+                        <li><a href="#" class="text-white">Phone: +91 9726730195</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="text-center p-3">
+            © 2024 E-Shop. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</body>
+
+</html>
+{%block script%}{%endblock%}
+<script>
+   
+    function submitLogout(){
+    var conf=confirm('Are you sure.you want to log out?')
+    if(conf){
+        $('#form-logout').submit()
+    }
+    }
+$('#signup').submit(function (event) {
+
+
+var formData = {
+    'name': $('#signUpName').val(),
+    'email': $('#signUpEmail').val(),
+    'password': $('#signUpPassword').val(),
+    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+};
+
+$.ajax({
+    url: '/seller/signup/',
+    data: formData,
+    type: 'POST',
+    dataType: 'json',
+    encode: true
+})
+.done(function (data) {
+    console.log(data);
+    alert(data.msg)
+})
+.fail(function () {
+    alert('Some error occurred');
+});
+event.preventDefault();
+});
+$('#otp-form').submit(function (event) {
+
+
+var formData = {
+    'email1': $('#signInEmail1').val(), // Ensure 'email1' matches the name attribute
+    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+};
+
+$.ajax({
+    url: '/shop/sendotp/',
+    data: formData,
+    type: 'POST',
+    dataType: 'json',
+    encode: true
+})
+.done(function (data) {
+    console.log(data);
+    if(data.msg == 'success'){
+       $('#signInModalWithOTP1').modal('show');
+       $('#hidden-email').val(data.email);
+    }
+})
+.fail(function () {
+    alert('Some error occurred');
+});
+event.preventDefault();
+});
+
+$(document).ready(function () {
+console.log("Document is ready");
+
+$('#otp-form1').submit(function (event) {
+    event.preventDefault();
+    console.log("Form submission intercepted");
+
+    var formData = {
+        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+        'otp': $('#signInOTP1').val(),
+        'hidden-email':$('#hidden-email').val()
+    };
+
+    console.log("Form Data:", formData);
+
+    $.ajax({
+        url: '/shop/signinwithotp/',
+        data: formData,
+        type: 'POST',
+        dataType: 'json',
+        encode: true,
+        success: function (data) {
+            console.log("AJAX success:", data);
+            if (data.cart) {
+                localStorage.setItem('cart', JSON.stringify(data.cart));
+            }
+            window.location.href='/shop/';
+        },
+        error: function (data) {
+            console.log("AJAX error:", data);
+            if (data.responseJSON && data.responseJSON.error) {
+                alert(data.responseJSON.error);
+            } else {
+                alert('Some error occurred');
+            }
+        }
+    });
+});
+
+</script>

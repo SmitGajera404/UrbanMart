@@ -1,0 +1,114 @@
+{% extends "warehouse/basic.html" %}
+
+{% block title %}Warehouse Orders-EcomWEB{% endblock %}
+{% load humanize %}
+{% load getdict %}
+{% block body %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .order {
+        background-color: #ffffff;
+        color: #333;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+    .product-details {
+        background-color: #f1f1f1;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+    }
+    .product-details img {
+        border-radius: 10px;
+        margin-bottom: 15px;
+        width: 100%; /* Ensure images take full width of container */
+        max-width: 200px; /* Set a maximum width */
+        height: auto; /* Maintain aspect ratio */
+        display: block;
+        margin: 0 auto;
+    }
+    .update-status {
+        background-color: #e2e6ea;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+    }
+    .update-status ul {
+        padding-left: 0;
+    }
+    .update-status li {
+        list-style: none;
+        margin-bottom: 10px;
+    }
+    .timestamp {
+        font-size: 0.8em;
+        color: #666;
+        margin-left: 10px;
+    }
+    .custom-text {
+        font-size: 40px;
+    }
+    .text-disabled {
+        color: #b3b3b3;
+    }
+</style>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Warehouse Order Management</h1>
+    <!-- Static Data Example -->
+    <hr class="text-light bg-light">
+    {% for i in orders %}
+    <div class="order">
+        <p class="custom-text"><strong>#Order {{ forloop.counter }}</strong></p>
+        <div class="row">
+            {% for j in products|get_val:i.0.id %}
+            <div class="col-md-6">
+                <div class="product-details">
+                    <img src="/media/{{ j.1.image }}" alt="Product Image" class="img-fluid">
+                    <Br>
+                    <br>
+                    <h3>{{ j.1.p_name }}</h3>
+                    <p><strong>Product ID:</strong> {{ j.1.id }}</p>
+                    <p><strong>Quantity:</strong> {{ j.0 }}</p>
+                    <p><strong>Category:</strong> {{ j.1.category }}</p>
+                    
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <!-- Section 2: Update Status -->
+            <div class="col-md-12">
+                <div class="update-status">
+                    <h5>Update Order Status</h5>
+                    <form method="post" action="/warehouse/updatestatus/{{i.0.id}}">
+                        {% csrf_token %}
+                        <ul>
+                            {%if i.1 == 'no action'%}
+                            <li>
+                                <input type="checkbox" name="packed" value="packed">
+                                <label for="status">Packed</label>
+                                <span class="timestamp"></span>
+                            </li>
+                            {% elif i.1 == 'packed' %}
+                            <li>
+                                <input type="checkbox" name="at_delivery_station" value="at_delivery_station">
+                                <label for="status">At delivery station</label>
+                                <span class="timestamp"></span>
+                            </li>
+                            
+                            {% endif %}
+                        </ul>
+                        <button type="submit" class="btn btn-primary mt-3">Update Status</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <!-- Additional Orders can be added similarly -->
+</div>
+{% endblock %}

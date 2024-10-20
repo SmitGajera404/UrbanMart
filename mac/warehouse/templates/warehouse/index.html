@@ -1,0 +1,73 @@
+{% extends 'warehouse/basic.html' %}
+{% block title %}Home-EcomWEB{% endblock %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'style/styles.css' %}">
+{% endblock %}
+{% block body %}
+<!-- Carousel -->
+
+{%if not_found%}
+<div class="alert alert-danger" role="alert">
+    <strong>Sorry!</strong>  No products found.(Login is required)
+</div>
+
+{%endif%}
+{% for products, range, n in allprods %}
+<div id="itemCarousel{{ forloop.counter }}" class="carousel slide mt-4" data-ride="carousel">
+    <div class="carousel-inner">
+        <h1>{{ products.0.category }}</h1>
+        <div class="carousel-item active">
+            <div class="card-deck">
+                {% for i in products %}
+                <div class="card bg-secondary text-white" style="width:33% !important;">
+                    <img src="/media/{{ i.image }}" class="card-img-top" alt="{{ i.p_name }}"
+                        style="height:400px !important;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ i.p_name }}</h5>
+                        <p class="description">{{ i.desc }}</p>
+                        <span class="show-more" onclick="toggleDescription(this)">... more</span>
+                        <p class="full-description">{{ i.desc }}</p>
+                        <div class="product-info d-flex justify-content-between align-items-center mt-3">
+                            <div class="product-plan text-muted">Plan: {{ i.p_plan }}</div>
+                            {% if i.stock == 0 %}
+                            <div class="stock-status text-danger font-weight-bold">Out of stock</div>
+                            {% else %}
+                            <div class="stock-status text-success font-weight-bold">Stock: {{ i.stock }}</div>
+                            {% endif %}
+                        </div>
+                        <a href="/warehouse/productview/{{ i.id }}" id="qv{{ i.id }}" class="btn btn-primary">View</a>
+                    </div>
+                </div>
+                {% if forloop.counter|divisibleby:4 and forloop.counter > 0 and not forloop.last %}
+            </div>
+        </div>
+        <div class="carousel-item">
+            <div class="card-deck">
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<a class="carousel-control-prev" style="top:auto !important;bottom:auto !important;"
+    href="#itemCarousel{{ forloop.counter }}" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+</a>
+<a class="carousel-control-next" style="top:auto !important;bottom:auto !important;"
+    href="#itemCarousel{{ forloop.counter }}" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+</a>
+</div>
+{% endfor %}
+{% endblock %}
+{% block script %}
+
+<script>
+    var isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+</script>
+
+<script src="{% static 'scripts/script.js'%}"></script>
+{% endblock %}

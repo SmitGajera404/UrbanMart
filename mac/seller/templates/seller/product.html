@@ -1,0 +1,283 @@
+{% extends 'seller/basic.html' %}
+{% block title %}{{product.p_name}} - EcomWEB{% endblock %}
+{% load static %}
+{% block css %}
+{% load getdict %}
+{%load humanize%}
+<link rel="stylesheet" href="{% static 'style/product.css' %}">
+<style>
+.star-rating {
+    display: inline-flex;
+    direction: ltr;
+}
+.star-rating .star {
+    font-size: 1.5rem;
+    color: black;
+    cursor: pointer;
+}
+.star-rating .star.active {
+    color: #FFD700;
+}
+</style>
+{% endblock %}
+{% block body %}
+<div class="container mt-5 pt-5">
+    <div class="product-container">
+        <div class="product-image">
+            <img src="/media/{{product.image}}" alt="Product Image">
+        </div>
+        <div class="product-details">
+            <h1>{{product.p_name}}</h1>
+            <div class="price">Rs.{{product.price}}</div>
+            <div class="description" id="description-{{product.id}}">
+                {{product.desc}}
+            </div>
+            <span class="show-more" id="show-more-{{product.id}}" onclick="toggleDescription('{{product.id}}')">... more</span>
+            <div class="full-description" id="full-description-{{product.id}}">
+                {{product.desc}}
+            </div>
+            <div class="star-rating">
+            {% for i in '12345' %}
+                    {% if forloop.counter <= product.ratings %}
+                    <h3 class="text-warning">★</h3>
+                    {%else%}
+                    <h3 class="text-secondary">☆</h3>
+                    {%endif%}
+                    {%endfor%}
+            </div>
+            <div class="category">Category: {{product.category}}</div>
+            <div class="subcategory">Subcategory: {{product.subcategory}}</div>
+            <div class="actions">
+                {%if product.stock == 0%}
+                <h4 class="text-danger">Out of stock</h4>
+                {%else%}
+                <div>views: {{product.views}}</div>
+                <button class="buy mx-3">Edit</button>
+                {%endif%}
+            </div>
+        </div>
+    </div>
+    <!-- Review Section -->
+    <div class="review-section mt-5">
+        <h2 class="text-light">Customer Reviews({{count}})</h2>
+        <div class="review-container">
+            {% for review in reviews %}
+            <div class="review">
+                <i class="fas text-primary fa-user px-2 pt-1"></i>
+                <span class="text-dark"><strong>{{review.1.user.username}}</strong></span>
+                {%if review.2 == 'expert'%}
+                        <span class="badge badge-pill badge-info">Expert of {{review.3}}</span>
+                {%endif%}
+                <span class="text-secondary">&nbsp; posted {{review.1.timestamp|naturaltime}}</span>
+                <p>{{review.1.review}}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="star-rating">
+                    {% for i in '12345' %}
+                    {% if forloop.counter <= review.1.ratings %}
+                    <h3 class="text-warning">★</h3>
+                    {%else%}
+                    <h3 class="text-secondary">☆</h3>
+                    {%endif%}
+                    {%endfor%}
+                </div>
+                
+                <div class="like-dislike">
+                    
+                    {%if review.0 == 'liked'%}
+                    <span class="text-info" onclick="addlike({{review.1.likes}},{{review.1.sno}},'{{review.1.dislikes}}','{{review.0}}')" id="like-{{review.1.sno}}">
+                    {%else%}
+                    <span class="text-dark" onclick="addlike({{review.1.likes}},{{review.1.sno}},'{{review.1.dislikes}}','{{review.0}}')" id="like-{{review.1.sno}}">
+                     {%endif%}
+                     
+                        <i class="fas fa-thumbs-up"></i> {{review.1.likes}}
+                    </span>
+                    &nbsp;&nbsp;
+                    
+                    {%if review.0 == 'disliked'%}
+                    <span class="text-danger"  id="dislike-{{review.1.sno}}" onclick="adddislike({{review.1.dislikes}},{{review.1.sno}},{{review.1.likes}},'{{review.0}}')">
+                    {%else%} 
+                    <span class="text-dark"  id="dislike-{{review.1.sno}}" onclick="adddislike({{review.1.dislikes}},{{review.1.sno}},{{review.1.likes}},'{{review.0}}')">
+                     {%endif%}
+                   
+                        <i class="fas fa-thumbs-down"></i> {{review.1.dislikes}}
+                    </span>
+                </div>
+            
+        
+                  <a class="reply-link" onclick="toggleReplyForm('reply-{{review.1.sno}}')">Reply</a>
+                <!--goes here-->
+                <div class="replies" id="replies-1">
+                    {% for i in replies|get_val:review.1.sno %}
+                    <div class="reply">
+                        <i class="fas text-primary fa-user px-2 pt-1"></i>
+                        <span class="text-dark">{{i.0.user.username}}</span>
+                        <span class="badge badge-pill badge-success">{%if i.1 == 'seller'%}seller{%endif%}</span>
+                        {%if i.1 == 'expert'%}
+                        <span class="badge badge-pill badge-info">Expert of {{i.2}}</span>
+                        {%endif%}
+                        <span class="text-secondary" style="font-size: small !important;margin-bottom: 5px !important;">&nbsp;posted {{i.0.timestamp|naturaltime}}</span>   
+                        <p>{{i.0.review}}</p>
+                    </div>
+                    {%endfor%}
+                    <form id="reply-{{review.1.sno}}" class="reply-form" style="display:none;" action="/shop/postReply/" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="reply-text-1" class="text-dark">Your Reply</label>
+                            <textarea id="reply-text-1" name="reply" class="form-control" rows="2"></textarea>
+                        </div>
+                        <input type="hidden" name="parent-sno" value="{{review.1.sno}}">
+                        <input type="hidden" name="productIdForReply" value="{{product.id}}">
+                        <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}  
+        </div>
+        {%if restricted == 'restricted'%}
+        <div class="alert alert-warning">Seller cannot review his/her own product, Although you can reply reviews.</div>
+        {%else%}
+        <div class="post-review">
+            <h3>Post Your Review</h3>
+            <form action="/shop/postReview/" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="review">Your Review</label>
+                    <textarea id="review" name="review" class="form-control" rows="3"></textarea>
+                    <input type="hidden" name="productId" value="{{product.id}}">
+                </div>
+                <!-- Star Rating Input -->
+                <div class="form-group">
+                    <div class="star-rating">
+                        <span class="star" data-value="1"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="2"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="3"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="4"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="5"><i class="far fa-star"></i></span>
+                        <input type="hidden" name="rating" id="rating">
+                    </div>
+                </div>
+                {% if user.is_authenticated %}
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                {% else %}
+                <div class="alert alert-danger" role="alert">
+                    login is required to post a review
+                </div>
+                {%endif%}
+            </form>
+        </div>
+        {%endif%}
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    function toggleDescription(element) {
+        const description = element.previousElementSibling;
+        const fullDescription = element.nextElementSibling;
+    
+        if (description.style.display === 'none') {
+            description.style.display = '-webkit-box';
+            fullDescription.style.display = 'none';
+            element.textContent = '... more';
+        } else {
+            description.style.display = 'none';
+            fullDescription.style.display = 'block';
+            element.textContent = '... less';
+        }
+    }
+    
+    function toggleReplyForm(id) {
+        var replyForm = document.getElementById(id);
+        if (replyForm.style.display === 'none') {
+            replyForm.style.display = 'block';
+        } else {
+            replyForm.style.display = 'none';
+        }
+     }
+     
+function addlike(total, sno, netTotal, mode) {
+    if ($('#like' + `-${sno}`).hasClass('text-info')) {
+
+    } else {
+        $('#like' + `-${sno}`).html('<i class="fas fa-thumbs-up"></i>' + (parseInt($('#like' + `-${sno}`).text()) + 1));
+        if (mode == 'disliked') { $('#dislike' + `-${sno}`).html('<i class="fas fa-thumbs-down"></i>' + (netTotal - 1)); }
+        else {
+            $('#dislike' + `-${sno}`).html('<i class="fas fa-thumbs-down"></i>' + (netTotal));
+        }
+        $('#like' + `-${sno}`).on('click', null);
+        $('#like' + `-${sno}`).addClass('text-info');
+        $('#like' + `-${sno}`).removeClass('text-dark');
+        $('#dislike' + `-${sno}`).removeClass('text-danger');
+        $('#dislike' + `-${sno}`).addClass('text-dark');
+
+        var formData = {
+            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+            'sno': sno
+        };
+
+        $.ajax({
+            url: '/seller/like/',
+            data: formData,
+            type: 'POST',
+            dataType: 'json',
+            encode: true,
+            success: function (data) { }
+        })
+    }
+}
+function adddislike(total, sno, netTotal, mode) {
+    if ($('#dislike' + `-${sno}`).hasClass('text-danger')) {
+
+    } else {
+
+        if (mode == 'liked') {
+            $('#like' + `-${sno}`).html('<i class="fas fa-thumbs-up"></i>' + (netTotal - 1));
+        }
+        else {
+            $('#like' + `-${sno}`).html('<i class="fas fa-thumbs-up"></i>' + (netTotal));
+        }
+        $('#dislike' + `-${sno}`).html(
+            '<i class="fas fa-thumbs-down"></i>' + (parseInt($('#dislike' + `-${sno}`).text()) + 1));
+        $('#dislike' + `-${sno}`).on('click', null);
+        $('#dislike' + `-${sno}`).addClass('text-danger');
+        $('#dislike' + `-${sno}`).removeClass('text-dark');
+        $('#like' + `-${sno}`).removeClass('text-info');
+        $('#like' + `-${sno}`).addClass('text-dark');
+
+        var formData = {
+            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+            'sno': sno
+        };
+
+        $.ajax({
+            url: '/seller/dislike/',
+            data: formData,
+            type: 'POST',
+            dataType: 'json',
+            encode: true,
+            success: function (data) { }
+        })
+    }
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const stars = document.querySelectorAll('.star-rating .star');
+    const ratingInput = document.getElementById('rating');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function () {
+            const value = this.getAttribute('data-value');
+            ratingInput.value = value;
+
+            stars.forEach(s => {
+                if (s.getAttribute('data-value') <= value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .header h1 {
+            margin: 0;
+            color: #007bff;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content h2 {
+            color: #007bff;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .order-details {
+            margin: 20px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .order-details th, .order-details td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+        .order-details th {
+            background-color: #f8f9fa;
+        }
+        .order-details td {
+            background-color: #f4f4f4;
+        }
+        .total {
+            font-weight: bold;
+            text-align: right;
+            padding-right: 10px;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px 0;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 20px;
+        }
+        .footer p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thank You for Your Order!</h1>
+        </div>
+        <div class="content">
+            <h2>Order Confirmation</h2>
+            <p>Dear [Customer Name],</p>
+            <p>Thank you for your purchase! We are excited to inform you that your order has been successfully placed.</p>
+            <p><strong>Order ID:</strong> #1234567890</p>
+            <table class="order-details">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Repeat this <tr> block for each product -->
+                    <tr>
+                        <td>Product 1</td>
+                        <td>2</td>
+                        <td>Rs. 500</td>
+                    </tr>
+                    <tr>
+                        <td>Product 2</td>
+                        <td>1</td>
+                        <td>Rs. 300</td>
+                    </tr>
+                    <!-- End of product block -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" class="total">Total</td>
+                        <td>Rs. 800</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <p>We will send you another email once your order has been shipped.</p>
+            <p>If you have any questions, feel free to contact our support team.</p>
+            <p>Best Regards,<br>The [Shop Name] Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 [Shop Name]. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

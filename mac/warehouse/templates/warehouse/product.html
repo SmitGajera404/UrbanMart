@@ -1,0 +1,108 @@
+{% extends 'warehouse/basic.html' %}
+{% block title %}{{product.p_name}} - EcomWEB{% endblock %}
+{% load static %}
+{% block css %}
+{% load getdict %}
+{%load humanize%}
+<link rel="stylesheet" href="{% static 'style/product.css' %}">
+<style>
+.star-rating {
+    display: inline-flex;
+    direction: ltr;
+}
+.star-rating .star {
+    font-size: 1.5rem;
+    color: black;
+    cursor: pointer;
+}
+.star-rating .star.active {
+    color: #FFD700;
+}
+</style>
+{% endblock %}
+{% block body %}
+<div class="container mt-5 pt-5">
+    <div class="product-container">
+        <div class="product-image">
+            <img src="/media/{{product.image}}" alt="Product Image">
+        </div>
+        <div class="product-details">
+            <h1>{{product.p_name}}</h1>
+            <div class="price">Rs.{{product.price}}</div>
+            <div class="description" id="description-{{product.id}}">
+                {{product.desc}}
+            </div>
+            <span class="show-more" id="show-more-{{product.id}}" onclick="toggleDescription('{{product.id}}')">... more</span>
+            <div class="full-description" id="full-description-{{product.id}}">
+                {{product.desc}}
+            </div>
+            <div class="star-rating">
+            {% for i in '12345' %}
+                    {% if forloop.counter <= product.ratings %}
+                    <h3 class="text-warning">★</h3>
+                    {%else%}
+                    <h3 class="text-secondary">☆</h3>
+                    {%endif%}
+                    {%endfor%}
+            </div>
+            <div class="category">Category: {{product.category}}</div>
+            <div class="subcategory">Subcategory: {{product.subcategory}}</div>
+            <p class="category">seller: {{product.seller}}</p>
+            <div class="subcategory">views: {{product.views}}</div>
+            <div class="actions">
+                {%if product.stock == 0%}
+                <h4 class="text-danger">Out of stock</h4>
+                {%endif%}
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    function toggleDescription(element) {
+        const description = element.previousElementSibling;
+        const fullDescription = element.nextElementSibling;
+    
+        if (description.style.display === 'none') {
+            description.style.display = '-webkit-box';
+            fullDescription.style.display = 'none';
+            element.textContent = '... more';
+        } else {
+            description.style.display = 'none';
+            fullDescription.style.display = 'block';
+            element.textContent = '... less';
+        }
+    }
+    
+    function toggleReplyForm(id) {
+        var replyForm = document.getElementById(id);
+        if (replyForm.style.display === 'none') {
+            replyForm.style.display = 'block';
+        } else {
+            replyForm.style.display = 'none';
+        }
+     }
+     
+document.addEventListener('DOMContentLoaded', function () {
+    const stars = document.querySelectorAll('.star-rating .star');
+    const ratingInput = document.getElementById('rating');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function () {
+            const value = this.getAttribute('data-value');
+            ratingInput.value = value;
+
+            stars.forEach(s => {
+                if (s.getAttribute('data-value') <= value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
